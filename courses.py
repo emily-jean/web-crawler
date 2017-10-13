@@ -8,7 +8,7 @@ import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 from graphviz import Digraph
-from itertools import groupby
+from collections import defaultdict
 
 PROG_NAME = os.path.splitext(os.path.basename(__file__))[0]
 
@@ -110,9 +110,9 @@ def str_join(*args):
 # parses the html of a course search, returns...
 # TODO: DOCUMENT RETURN WITH EXAMPLES HERE (must be a tuple)
 def _parse_course_listing(html):
-    retval = { "params":{} }
+    dict1 = { "courses":{} }
+    dict2 = { "prereqs":{} }
     soup = BeautifulSoup(html, "html.parser")
-    retval["title"] = str(soup.title.string)
     form = soup.find("div", {"class":"pagebodydiv"}).find("table")
     key = ""
     for atag in form.find_all('a'):
@@ -121,22 +121,24 @@ def _parse_course_listing(html):
             num = str(atext[2]).strip()
             courseNodeLabel = str_join(num, '\n', str(atext[0]).strip())
             key = num.replace(" ", "_")
-            if key not in retval["params"]:
-                retval["params"].setdefault(key, [])
-                retval["params"][key].append(courseNodeLabel)
+            if key not in dict1["courses"]:
+                dict1["courses"].setdefault(key, [])
+                dict1["courses"][key].append(courseNodeLabel)
         else:
-            if 'Syllabus Available' not in atext[0]:
-                underscoreText = atext[0].replace(" ", "_")
-                if (key is not underscoreText and underscoreText not in retval["params"][key] and underscoreText not in retval["params"]):
-                    retval["params"][key].append(underscoreText)
-                    retval["params"].setdefault(underscoreText, [])
-                    prereqLabel = str_join(atext[0], '\n')
-                    retval["params"][underscoreText].append(prereqLabel)
-    
-    #d = [x for x, y in groupby(retval["params"])]
-    #finalInfo = dict(zip(sorted(retval["params"].items()), d))
-    print(retval)
-    return (None, None, None) # TODO: replace with your code (course numbers, titles, prereqs)
+            prereqText = atext[0].strip()
+            if 'Syllabus Available' not in prereqText:
+                underscoreText = prereqText.strip().replace(" ", "_")
+                prereqLabel = str_join(prereqText, '\n')
+                if underscoreText not in dict1["courses"]:
+                    dict1["courses"].setdefault(underscoreText, [])
+                    dict1["courses"][underscoreText].append(prereqLabel)
+                if key not in dict2["prereqs"]:
+                    dict2["prereqs"].setdefault(key, [])
+                if underscoreText not in dict2["prereqs"][key]:
+                    dict2["prereqs"][key].append(underscoreText)
+
+    courseInfo = dict1, dict2
+    return (courseInfo)
 
 # execute a course search request
 # returns the parsed result: format of your choice (must be a tuple)
@@ -163,7 +165,7 @@ def coursesearch(termcode,
         ("sel_levl", "dummy"),
         ("sel_instr", "dummy"),
         ("sel_seat", "dummy"),
-        ("p_msg_code", "UNSECURED"),
+        ("p_msg_code", "You can not select All in Subject and All in Attribute type."),
         ("sel_crn", sel_crn),
         ("sel_subj", sel_subj), # CS
         ("sel_crse", sel_crse),
@@ -199,6 +201,8 @@ def coursesearch(termcode,
 # in DOT format
 def print_course_dot(courseinfo):
     # @TODO check height and width
+    courses = courseinfo[0]["courses"]
+    reqs = courseinfo[1]["prereqs"]
     g = Digraph('G', filename='test_dot.gv', node_attr={'width': '5', 'height': '1'})
     dot = Digraph(name='G')
     dot.graph_attr['rankdir'] = 'LR'
@@ -207,12 +211,12 @@ def print_course_dot(courseinfo):
 
     # @TODO sort course number w/ prereq sorted too
 
-    # @TODO
-    # for each course number create a node
-    # dot.node('CS_5001', 'CS 5001\nIntensive Foundations of Computer Science')
+    for i in courses:
+        dot.node(str(i), str(courses[i]))
 
-    # for each course number with prereq(s) create an edge
-    # dot.edges(['CS_5001', 'CS_5003'])
+    for n in reqs:
+        for m in reqs[n]:
+            dot.edge(str(m), str(n))
 
     print(dot.source)
 
@@ -306,7 +310,7 @@ def main(argv):
     
     #####
     
-    print_course_dot(*info)
+    print_course_dot(info)
     
 if __name__ == "__main__":
     main(sys.argv[1:])
