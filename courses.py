@@ -8,6 +8,7 @@ import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 from graphviz import Digraph
+from itertools import groupby
 
 PROG_NAME = os.path.splitext(os.path.basename(__file__))[0]
 
@@ -113,32 +114,27 @@ def _parse_course_listing(html):
     soup = BeautifulSoup(html, "html.parser")
     retval["title"] = str(soup.title.string)
     form = soup.find("div", {"class":"pagebodydiv"}).find("table")
-
-    for info in form.find_all("th", {"class":"ddtitle"}):
-        hinfo = str(info.text).split(" - ")
-        num = str(hinfo[2]).strip()
-        courseName = str(hinfo[0]).strip()
-        nodeLabel = str_join(num, '\n', courseName)
-        numberLabel = num.replace(" ", "_") #retval["params"][numberLabel] = nodeLabel
-        key = numberLabel
-        if key not in retval["params"]:
-            retval["params"].setdefault(key, [])
-            retval["params"][key].append(nodeLabel)
-
-    # @TODO - just for testing. Remove
-    for key in sorted(retval["params"]):
-        print("%s: %s" % (key, retval["params"][key]))
-
-    keys = list(retval["params"].keys())
-    i = 0
-    for prereq in form.find_all("td", {"class":"dddefault"}):
-        courseNumKey = str(keys[i])
-        # , attrs={'href': lambda x: x and '.p_display_courses' in x}
-        for atag in prereq('a'):
-            if '.p_display_courses' in str(atag.attrs['href']):
-                retval["params"][courseNumKey].append(str(atag.text).replace(" ", "_"))
-                print(atag.text)
-            
+    key = ""
+    for atag in form.find_all('a'):
+        atext = str(atag.text).split(" - ")
+        if len(atext) > 1:
+            num = str(atext[2]).strip()
+            courseNodeLabel = str_join(num, '\n', str(atext[0]).strip())
+            key = num.replace(" ", "_")
+            if key not in retval["params"]:
+                retval["params"].setdefault(key, [])
+                retval["params"][key].append(courseNodeLabel)
+        else:
+            if 'Syllabus Available' not in atext[0]:
+                underscoreText = atext[0].replace(" ", "_")
+                if (key is not underscoreText and underscoreText not in retval["params"][key] and underscoreText not in retval["params"]):
+                    retval["params"][key].append(underscoreText)
+                    retval["params"].setdefault(underscoreText, [])
+                    prereqLabel = str_join(atext[0], '\n')
+                    retval["params"][underscoreText].append(prereqLabel)
+    
+    #d = [x for x, y in groupby(retval["params"])]
+    #finalInfo = dict(zip(sorted(retval["params"].items()), d))
     print(retval)
     return (None, None, None) # TODO: replace with your code (course numbers, titles, prereqs)
 
