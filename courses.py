@@ -136,7 +136,6 @@ def _parse_course_listing(html):
                     dict2["prereqs"].setdefault(key, [])
                 if underscoreText not in dict2["prereqs"][key]:
                     dict2["prereqs"][key].append(underscoreText)
-
     courseInfo = dict1, dict2
     return (courseInfo)
 
@@ -203,17 +202,13 @@ def print_course_dot(courseinfo):
     # @TODO check height and width
     courses = courseinfo[0]["courses"]
     reqs = courseinfo[1]["prereqs"]
-    g = Digraph('G', filename='test_dot.gv', node_attr={'width': '5', 'height': '1'})
+    g = Digraph('G', filename='test_dot.gv', node_attr={'width': 5, 'height': 1})
     dot = Digraph(name='G')
     dot.graph_attr['rankdir'] = 'LR'
 
-    # @TODO sort course number for nodes
-
+    for key, value in sorted(courses.items()):
+        dot.node(str(key), ''.join(map(str,value)))
     # @TODO sort course number w/ prereq sorted too
-
-    for i in courses:
-        dot.node(str(i), str(courses[i]))
-
     for n in reqs:
         for m in reqs[n]:
             dot.edge(str(m), str(n))
