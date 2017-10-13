@@ -202,12 +202,13 @@ def print_course_dot(courseinfo):
     # @TODO check height and width
     courses = courseinfo[0]["courses"]
     reqs = courseinfo[1]["prereqs"]
-    g = Digraph('G', filename='test_dot.gv', node_attr={'width': 5, 'height': 1})
+    g = Digraph('G', node_attr={'width': '5', 'height': '1'})
     dot = Digraph(name='G')
     dot.graph_attr['rankdir'] = 'LR'
 
     for key, value in sorted(courses.items()):
-        dot.node(str(key), ''.join(map(str,value)))
+        dot.node(str(key), ''.join(map(str,value))) # str(value)
+
     # @TODO sort course number w/ prereq sorted too
     for n in reqs:
         for m in reqs[n]:
