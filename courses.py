@@ -166,11 +166,11 @@ def coursesearch(termcode,
         ("sel_seat", "dummy"),
         ("p_msg_code", "You can not select All in Subject and All in Attribute type."),
         ("sel_crn", sel_crn),
-        ("sel_subj", sel_subj), # CS
+        ("sel_subj", sel_subj),
         ("sel_crse", sel_crse),
         ("sel_title", sel_title),
         ("sel_attr", sel_attr),
-        ("sel_levl", sel_levl), # UG G
+        ("sel_levl", sel_levl),
         ("sel_schd", sel_schd),
         ("sel_insm", sel_insm),
         ("sel_from_cred", sel_from_cred),

@@ -1,0 +1,19 @@
+digraph G {
+	graph [rankdir=LR]
+	CS_5200 [label="CS 5200
+Database Management Systems"]
+	CS_5800 [label="CS 5800
+"]
+	CS_6220 [label="CS 6220
+Data Mining Techniques"]
+	CS_7800 [label="CS 7800
+"]
+	DS_5230 [label="DS 5230
+Unsupervised Machine Learning and Data Mining"]
+	EECE_7205 [label="EECE 7205
+"]
+	CS_5800 -> CS_6220
+	CS_7800 -> CS_6220
+	CS_5800 -> DS_5230
+	EECE_7205 -> DS_5230
+}
