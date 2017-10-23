@@ -199,19 +199,22 @@ def coursesearch(termcode,
 # and outputs to the console a digraph of related courses
 # in DOT format
 def print_course_dot(courseinfo):
-    # @TODO check height and width
     courses = courseinfo[0]["courses"]
     reqs = courseinfo[1]["prereqs"]
     dot = Digraph(name='G',node_attr={'width': '5', 'height': '1'})
     dot.graph_attr['rankdir'] = 'LR'
 
     for key, value in sorted(courses.items()):
-        dot.node(str(key), ''.join(map(str,value))) # str(value)
+        dot.node(str(key), ''.join(map(str,value)))
 
-    # @TODO sort course number w/ prereq sorted too
+    edges = []
     for n in reqs:
         for m in reqs[n]:
-            dot.edge(str(m), str(n))
+            edges.append((str(m),str(n)))
+
+    sorted_edges = sorted(edges, key=lambda tup: (tup[0]))
+    for edge in sorted_edges:
+        dot.edge(edge[0], edge[1])
 
     print(dot.source)
 
