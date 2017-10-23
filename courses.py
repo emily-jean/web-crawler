@@ -119,7 +119,7 @@ def _parse_course_listing(html):
         atext = str(atag.text).split(" - ")
         if len(atext) > 1:
             num = str(atext[2]).strip()
-            courseNodeLabel = str_join(num, '\n', str(atext[0]).strip())
+            courseNodeLabel = str_join(num, r"\n", str(atext[0]).strip())
             key = num.replace(" ", "_")
             if key not in dict1["courses"]:
                 dict1["courses"].setdefault(key, [])
@@ -128,7 +128,7 @@ def _parse_course_listing(html):
             prereqText = atext[0].strip()
             if 'Syllabus Available' not in prereqText:
                 underscoreText = prereqText.strip().replace(" ", "_")
-                prereqLabel = str_join(prereqText, '\n')
+                prereqLabel = str_join(prereqText, r"\n")
                 if underscoreText not in dict1["courses"]:
                     dict1["courses"].setdefault(underscoreText, [])
                     dict1["courses"][underscoreText].append(prereqLabel)
