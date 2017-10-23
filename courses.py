@@ -202,8 +202,7 @@ def print_course_dot(courseinfo):
     # @TODO check height and width
     courses = courseinfo[0]["courses"]
     reqs = courseinfo[1]["prereqs"]
-    g = Digraph('G', node_attr={'width': '5', 'height': '1'})
-    dot = Digraph(name='G')
+    dot = Digraph(name='G',node_attr={'width': '5', 'height': '1'})
     dot.graph_attr['rankdir'] = 'LR'
 
     for key, value in sorted(courses.items()):
